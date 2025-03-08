@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { globalStyles } from '../styles/style';
 
 export default function UserDetails({ userProfile }) {
@@ -12,28 +12,42 @@ export default function UserDetails({ userProfile }) {
   }
 
   return (
-    <View style={globalStyles.container}>
-      <Text style={globalStyles.heading}>View your Details</Text>
-      <Text style={styles.detail}>Name: {userProfile.name}</Text>
-      <Text style={styles.detail}>Gender: {userProfile.gender}</Text>
-      <Text style={styles.detail}>Weight: {userProfile.weight} lbs</Text>
-      <Text style={styles.detail}>Height: {Math.floor(userProfile.height / 12)} ft {userProfile.height % 12} in</Text>
-      <Text style={styles.detail}>Age: {userProfile.age}</Text>
-      <Text style={styles.detail}>Cancer Type: {userProfile.cancerType || 'Not specified'}</Text>
-      <Text style={styles.detail}>Stage: {userProfile.stage}</Text>
-      <Text style={styles.detail}>Treatment: {userProfile.treatment}</Text>
-      <Text style={styles.detail}>Treatment Frequency: {userProfile.treatmentFrequency || 'None'}</Text>
-      <Text style={styles.detail}>Next Treatment: {new Date(userProfile.nextTreatmentDate).toLocaleDateString()}</Text>
-      <Text style={styles.detail}>Last Treatment: {new Date(userProfile.lastTreatmentDate).toLocaleDateString()}</Text>
-      <Text style={styles.detail}>Aerobic Days (Past Week): {userProfile.aerobicDays}</Text>
-      <Text style={styles.detail}>Strength Days (Past Week): {userProfile.strengthDays}</Text>
-    </View>
+    <ScrollView style={globalStyles.container}>
+      <Text style={globalStyles.heading}>View Your Details</Text>
+      <View style={styles.detailsContainer}>
+        <Text style={styles.detail}>Name: <Text style={styles.detailValue}>{userProfile.name}</Text></Text>
+        <Text style={styles.detail}>Gender: <Text style={styles.detailValue}>{userProfile.gender}</Text></Text>
+        <Text style={styles.detail}>Weight: <Text style={styles.detailValue}>{userProfile.weight} lbs</Text></Text>
+        <Text style={styles.detail}>Height: <Text style={styles.detailValue}>{Math.floor(userProfile.height / 12)} ft {userProfile.height % 12} in</Text></Text>
+        <Text style={styles.detail}>Age: <Text style={styles.detailValue}>{userProfile.age}</Text></Text>
+        <Text style={styles.detail}>Cancer Type: <Text style={styles.detailValue}>{userProfile.cancerType || 'Not specified'}</Text></Text>
+        <Text style={styles.detail}>Stage: <Text style={styles.detailValue}>{userProfile.stage}</Text></Text>
+        <Text style={styles.detail}>Treatment: <Text style={styles.detailValue}>{userProfile.treatment}</Text></Text>
+        <Text style={styles.detail}>Treatment Frequency: <Text style={styles.detailValue}>{userProfile.treatmentFrequency || 'None'}</Text></Text>
+        <Text style={styles.detail}>Next Treatment: <Text style={styles.detailValue}>{new Date(userProfile.nextTreatmentDate).toLocaleDateString()}</Text></Text>
+        <Text style={styles.detail}>Last Treatment: <Text style={styles.detailValue}>{new Date(userProfile.lastTreatmentDate).toLocaleDateString()}</Text></Text>
+        <Text style={styles.detail}>Aerobic Days (Past Week): <Text style={styles.detailValue}>{userProfile.aerobicDays}</Text></Text>
+        <Text style={styles.detail}>Strength Days (Past Week): <Text style={styles.detailValue}>{userProfile.strengthDays}</Text></Text>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  detailsContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    marginTop: 20,
+  },
   detail: {
     fontSize: 16,
-    marginVertical: 5,
+    marginVertical: 8,
+    color: '#333',
+  },
+  detailValue: {
+    fontWeight: 'bold',
+    color: '#555',
   },
 });
