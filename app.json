@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Cancer Exercise App",
+    "slug": "snack-4689faae-88d3-449d-af9a-28235359c63e",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff",
+      "hideOnLoad": true
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.quantumstudio.cancerexerciseapp"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "63b148ba-eb73-4fc3-a1f4-44d3312c42b9"
+      }
+    }
+  }
+}
