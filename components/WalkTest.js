@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
 import { globalStyles } from '../styles/style';
 
@@ -7,10 +7,15 @@ const WalkTest = ({ testType, onSaveTestResult }) => {
   const isWalkTest = testType === 'walkTest';
   const [timeLeft, setTimeLeft] = useState(isWalkTest ? 360 : 30);
   const [isRunning, setIsRunning] = useState(false);
-  const [distance, setDistance] = useState(0);
+  const [stepCount, setStepCount] = useState(0); // Replace distance with step count
+  const [distance, setDistance] = useState(0); // Calculated from steps
   const [sitStandCount, setSitStandCount] = useState('');
   const [subscription, setSubscription] = useState(null);
   const [lastAcceleration, setLastAcceleration] = useState({ x: 0, y: 0, z: 0 });
+  const [peakDetected, setPeakDetected] = useState(false); // For step detection
+
+  // Average stride length (in meters), adjustable based on user height
+  const STRIDE_LENGTH = 0.7; // Can be customized later via user profile
 
   useEffect(() => {
     if (isWalkTest) askForPermission();
@@ -46,16 +51,28 @@ const WalkTest = ({ testType, onSaveTestResult }) => {
     if (!isAvailable) return;
     if (!subscription) {
       const newSubscription = Accelerometer.addListener(({ x, y, z }) => {
-        const delta = Math.sqrt(
-          Math.pow(x - lastAcceleration.x, 2) +
-          Math.pow(y - lastAcceleration.y, 2) +
-          Math.pow(z - lastAcceleration.z, 2)
+        const magnitude = Math.sqrt(x * x + y * y + z * z); // Total acceleration magnitude
+        const delta = magnitude - Math.sqrt(
+          lastAcceleration.x * lastAcceleration.x +
+          lastAcceleration.y * lastAcceleration.y +
+          lastAcceleration.z * lastAcceleration.z
         );
-        if (delta > 0.02) setDistance((prev) => prev + delta * 0.5); // Rough estimate
+
+        // Step detection: Look for peaks in acceleration (walking motion)
+        if (delta > 0.5 && !peakDetected) { // Threshold for step detection
+          setStepCount((prev) => prev + 1);
+          setPeakDetected(true); // Mark peak to avoid double-counting
+        } else if (delta < -0.5) {
+          setPeakDetected(false); // Reset for next step
+        }
+
+        // Update distance based on step count
+        setDistance(stepCount * STRIDE_LENGTH);
+
         setLastAcceleration({ x, y, z });
       });
       setSubscription(newSubscription);
-      Accelerometer.setUpdateInterval(100);
+      Accelerometer.setUpdateInterval(100); // 100ms update interval
     }
   };
 
@@ -69,6 +86,7 @@ const WalkTest = ({ testType, onSaveTestResult }) => {
   const handleReset = () => {
     setIsRunning(false);
     setTimeLeft(isWalkTest ? 360 : 30);
+    setStepCount(0);
     setDistance(0);
     setSitStandCount('');
     unsubscribeFromAccelerometer();
@@ -120,7 +138,10 @@ const WalkTest = ({ testType, onSaveTestResult }) => {
       )}
 
       {isWalkTest ? (
-        <Text style={{ fontSize: 20, color: '#5A5A5A' }}>{distance.toFixed(2)} m</Text>
+        <>
+          <Text style={{ fontSize: 20, color: '#5A5A5A' }}>{distance.toFixed(2)} m</Text>
+          <Text style={{ fontSize: 16, color: '#5A5A5A' }}>Steps: {stepCount}</Text> {/* Optional: Show step count for debugging */}
+        </>
       ) : (
         timeLeft === 0 && (
           <TextInput
