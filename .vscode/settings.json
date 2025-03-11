@@ -1,3 +1,7 @@
 {
-  "cSpell.words": ["datetimepicker", "swipeable"]
+  "cSpell.words": [
+    "datetimepicker",
+    "swipeable"
+  ],
+  "editor.fontSize": 10
 }

@@ -98,7 +98,7 @@ export default function App() {
     const newEntry = { ...newVitals, timestamp: Date.now() };
     setVitalsHistory((prev) => {
       const updatedVitals = [...prev, newEntry];
-      saveData("vitalsHistory", updatedVitals); // Save updated vitals
+      saveData("vitalsHistory", updatedVitals);
       return updatedVitals;
     });
   };
@@ -143,13 +143,13 @@ export default function App() {
             <>
               {screenName === "FirstScreen" && (
                 <FirstScreen
-                  setScreenName={setScreenName}
-                  setIsCompleted={setIsCompleted}
-                  setUserProfile={(profile) => {
-                    setUserProfile(profile);
-                    saveData("userProfile", profile); // Save user profile when set
-                  }}
-                />
+                setScreenName={setScreenName}
+                setIsCompleted={setIsCompleted}
+                setUserProfile={(profile) => {
+                  setUserProfile(profile);
+                  saveData("userProfile", profile); // Already present and sufficient
+                }}
+              />
               )}
               {screenName === "Dashboard" && (
                 <Dashboard
@@ -181,7 +181,7 @@ export default function App() {
                 />
               )}
               {screenName === "User Details" && (
-                <UserDetails userProfile={userProfile} />
+                <UserDetails userProfile={userProfile} setUserProfile={setUserProfile} />
               )}
             </>
 
