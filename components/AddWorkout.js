@@ -12,10 +12,10 @@ import {
 import { globalStyles } from '../styles/style';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { insertWorkout } from './db';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function AddWorkout({ setScreenName }) {
-  const [workoutScreen, setWorkoutScreen] = useState(1); 
+export default function AddWorkout({ setScreenName, onAddWorkout }) {
+  const [workoutScreen, setWorkoutScreen] = useState(1);
   const [showNextPicker, setShowNextPicker] = useState(false);
   const [workoutDate, setWorkoutDate] = useState(new Date());
   const [exerciseType, setExerciseType] = useState('');
@@ -46,16 +46,36 @@ export default function AddWorkout({ setScreenName }) {
   const handleNextPress = async () => {
     if (!disableNext) {
       if (workoutScreen === 3) {
-        const duration = parseInt(hours) * 60 + parseInt(minutes) + parseInt(seconds) / 60; 
+        const duration = parseInt(hours) * 60 + parseInt(minutes) + parseInt(seconds) / 60;
         const workout = {
+          id: Date.now(), // Unique ID based on timestamp
           type: exerciseType.toLowerCase(),
           name: aerobicExercise + (note ? ` - ${note}` : ''),
-          duration,
+          duration: duration.toFixed(2), // Duration in minutes
           intensity,
           timestamp: workoutDate.getTime(),
+          distance: parseFloat(kilometers) || 0, // Optional distance
+          fatigue, // Include fatigue for completeness
         };
-        await insertWorkout(workout);
-        setScreenName('Past Workouts');
+
+        try {
+          // Load existing workouts from AsyncStorage
+          const storedWorkouts = await AsyncStorage.getItem('workouts');
+          const workouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
+          
+          // Add new workout
+          const updatedWorkouts = [...workouts, workout];
+          await AsyncStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+          
+          // Notify parent component
+          if (onAddWorkout) onAddWorkout(workout);
+          
+          // Navigate to Past Workouts
+          setScreenName('Past Workouts');
+        } catch (error) {
+          console.error('Error saving workout:', error);
+          alert('Failed to save workout. Please try again.');
+        }
       } else {
         setWorkoutScreen(workoutScreen + 1);
       }
@@ -333,7 +353,7 @@ export default function AddWorkout({ setScreenName }) {
             <Text
               style={[
                 { color: 'white', fontSize: 18 },
-                disableNext && { color: 'white' },
+                disableNext && { color: 'grey' }, // Grey out when disabled
               ]}
             >
               {workoutScreen === 3 ? 'Save Workout' : 'Next'}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-import { getExercises } from './db';
+//import { getExercises } from './db';
 import { globalStyles } from '../styles/style';
 
 const ExerciseList = () => {

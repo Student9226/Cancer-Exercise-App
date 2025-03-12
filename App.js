@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Text, View, TouchableOpacity } from "react-native";
 import {
   SafeAreaProvider,
@@ -60,6 +60,7 @@ export default function App() {
     diastolic: 0,
     weight: 0,
   });
+  const [workouts, setWorkouts] = React.useState([]); // New state for workouts
 
   const loadData = async () => {
     try {
@@ -72,9 +73,12 @@ export default function App() {
       const storedProfile = await AsyncStorage.getItem("userProfile");
       if (storedProfile) {
         setUserProfile(JSON.parse(storedProfile));
-        setIsCompleted(true); // If profile exists, assume onboarding is done
-        setScreenName("Dashboard"); // Skip FirstScreen if profile is loaded
+        setIsCompleted(true);
+        setScreenName("Dashboard");
       }
+
+      const storedWorkouts = await AsyncStorage.getItem("workouts");
+      if (storedWorkouts) setWorkouts(JSON.parse(storedWorkouts) || []);
     } catch (error) {
       console.error("Error loading data from AsyncStorage:", error);
     }
@@ -88,7 +92,6 @@ export default function App() {
     }
   };
 
-  // Load data when app mounts
   React.useEffect(() => {
     loadData();
   }, []);
@@ -106,10 +109,18 @@ export default function App() {
   const handleSaveTestResult = (result) => {
     setTestResults((prev) => {
       const updatedTests = [...prev, result];
-      saveData("testResults", updatedTests); // Save updated test results
+      saveData("testResults", updatedTests);
       return updatedTests;
     });
     setScreenName("Dashboard");
+  };
+
+  const handleAddWorkout = (newWorkout) => {
+    setWorkouts((prev) => {
+      const updatedWorkouts = [...prev, newWorkout];
+      saveData("workouts", updatedWorkouts);
+      return updatedWorkouts;
+    });
   };
 
   const toggleDrawer = (newScreen) => {
@@ -143,13 +154,13 @@ export default function App() {
             <>
               {screenName === "FirstScreen" && (
                 <FirstScreen
-                setScreenName={setScreenName}
-                setIsCompleted={setIsCompleted}
-                setUserProfile={(profile) => {
-                  setUserProfile(profile);
-                  saveData("userProfile", profile); // Already present and sufficient
-                }}
-              />
+                  setScreenName={setScreenName}
+                  setIsCompleted={setIsCompleted}
+                  setUserProfile={(profile) => {
+                    setUserProfile(profile);
+                    saveData("userProfile", profile);
+                  }}
+                />
               )}
               {screenName === "Dashboard" && (
                 <Dashboard
@@ -169,9 +180,18 @@ export default function App() {
                   onSaveVitals={handleSaveVitals}
                 />
               )}
-              {screenName === "Add Workout" && <AddWorkout />}
+              {screenName === "Add Workout" && (
+                <AddWorkout
+                  setScreenName={setScreenName}
+                  onAddWorkout={handleAddWorkout}
+                />
+              )}
               {screenName === "Past Workouts" && (
-                <PastWorkouts setScreenName={setScreenName} />
+                <PastWorkouts
+                  setScreenName={setScreenName}
+                  workouts={workouts}
+                  setWorkouts={setWorkouts}
+                />
               )}
               {screenName === "Resources" && <Resources />}
               {screenName === "WalkTest" && (
